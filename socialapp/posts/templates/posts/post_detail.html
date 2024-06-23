@@ -67,7 +67,7 @@
                             </form>
                     {% endif %}
 
-                    <form class="reply-form" method="post" action="{% url 'add_comment' post.slug %}">
+                    <form class="reply-form" id="reply-form-{{ comment.id }}" method="post" action="{% url 'add_comment' post.slug %}">
                         {% csrf_token %}
                         {{ form.as_p }}
                         <input type="hidden" name="parent_id" value="{{ comment.id }}">
@@ -132,17 +132,5 @@
 {% block sidebar %}{% endblock sidebar %}
 
 {% block js %}
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script>
-        $(document).ready(function() {
-            $('.reply-link').click(function(e) {
-                e.preventDefault();
-                var commentId = $(this).data('comment-id');
-                // Скрыть все формы для ответов
-                $('.reply-form').hide();
-                // Найти форму для текущего комментария и показать её
-                $('#reply-form-' + commentId).show();
-            });
-        });
-    </script>
+
 {% endblock js %}
