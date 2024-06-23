@@ -40,17 +40,40 @@ class PostDetailView(DataMixin, DetailView):
         return get_object_or_404(Post.published, slug=self.kwargs[self.slug_url_kwarg])
     
 class AddCommentView(View):
-    def post(self, request, post_slug):
+    
+    
+    def dispatch(self, request, *args, **kwargs):
+        if request.method == "POST" and request.POST.get("_method") == "DELETE":
+            request.method = "DELETE"
+        return super().dispatch(request, *args, **kwargs)
+    
+    
+    def post(self, request, post_slug, comment_id=None):
         post = get_object_or_404(Post, slug=post_slug)
-        form = CommentCreateForm(request.POST)
+        if comment_id:
+            comment = get_object_or_404(Comment, id=comment_id, post=post)
+            form = CommentCreateForm(request.POST, instance=comment)
+        else:
+            form = CommentCreateForm(request.POST)
+            
         if form.is_valid():
-            comment = form.save(commit=False)
-            comment.post = post
-            comment.user = request.user
-            comment.save()
-            # return redirect("post_detail", slug=post_slug)
-            return HttpResponse(request.META["HTTP_REFERER"])
+            new_comment = form.save(commit=False)
+            new_comment.post = post
+            new_comment.user = request.user
+            parent_id = request.POST.get('parent_id')
+            if parent_id:
+                new_comment.parent = Comment.objects.get(id=parent_id)
+                
+            new_comment.save()
+            return redirect("post_detail", post_slug=post_slug)
         return render(request, "posts/post_detail.html", {"post": post, 'form': form})
+    
+    def delete(self, request, comment_id):
+        comment = get_object_or_404(Comment, id=comment_id)
+        post_slug = comment.post.slug
+        if request.user == comment.user:
+            comment.delete()
+        return redirect('post_detail', post_slug=post_slug)
 
 
 class CommentUpdateView(UpdateView):
