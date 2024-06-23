@@ -1,0 +1,57 @@
+{% load static %}
+{% load post_tags %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Социальная сеть</title>
+    <link rel="stylesheet" href="{% static "posts/css/index.css" %}">
+    {% block css %}{% endblock css %}
+</head>
+<body>
+    <header>
+        <nav>
+            <a href="/">Главная</a>
+            <a href="{% url "add_post" %}">Добавить пост</a>
+            {% if user.is_authenticated %}
+                <a href="{% url "users:profile" %}">{{ user.username }}</a> | <a href="{% url "users:logout" %}">Выйти</a>
+            {% else %}
+                <a href="{% url "users:login" %}">Авторизация</a> | <a href="{% url "users:registration" %}">Регистрация</a>
+            {% endif %}
+            
+        </nav>
+        <h1>Добро пожаловать в нашу социальную сеть!</h1>
+        <br>
+        <h1>24\7</h1>
+    </header>
+    <main>
+        {% block content %}
+        
+        {% endblock content %}
+        
+        {% block sidebar %}
+            <aside class="sidebar">
+                <div class="categories">
+                    {% if cat_selected == 0 %}
+                    <h3>Категории</h3>
+                    {% else %}
+                    <ul><li><a href="{% url "home" %}">Категории</a></li></ul>
+                    {% endif %}
+                    
+                    <ul>
+                        {% show_categories cat_selected %}
+                        <!-- Добавьте больше категорий здесь -->
+                    </ul>
+                </div>
+                <div class="tags">
+                    <h3>Теги</h3>
+                    {% show_all_tags %}
+                    <!-- Добавьте больше тегов здесь -->
+                </div>
+            </aside>
+        {% endblock sidebar %}
+    </main>
+</body>
+</html>

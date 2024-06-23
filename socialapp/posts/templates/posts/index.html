@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<section class="posts">
+    {% for post in posts %}
+        <div class="post-card">
+            <img src="{{ post.photo.url }}" alt="{{ post.title }}" class="post-image">
+            <div class="post-content">
+                <div class="post-header">
+                    {% if post.author.photo %}
+                    <img src="{{ post.author.photo.url }}" alt="{{ post.author.username }}" class="author-avatar">
+                    {% else %}
+                    <img src="{{ default_image }}" alt="{{ post.author.username }}" class="author-avatar">
+                    {% endif %}
+                    
+                    <span class="author-name">{{ post.author.username }}</span>
+                    <span class="post-date">{{ post.time_create }}</span>
+                </div>
+                <h2 class="post-title">{{ post.title|truncatewords:20 }}</h2>
+                <p class="post-excerpt">{{ post.content|truncatewords:50 }}</p>
+                <a href="{{ post.get_absolute_url }}" class="view-button">Посмотреть</a>
+            </div>
+        </div>
+    {% endfor %}
+
+    {% include "posts/include/pagination.html" with posts=page_obj %}
+</section>
+
+
+{% endblock content %}

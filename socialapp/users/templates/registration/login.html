@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block css %}<link rel="stylesheet" href="{% static "users/css/login.css" %}">{% endblock css %}
+
+{% block content %}
+<div class="login-container">
+    <h2>Авторизация</h2>
+    <form class="login-form" action="{% url 'users:login' %}" method="post">
+        {% csrf_token %}
+        <div class="form-error">{{ form.non_field_errors }}</div>
+        {% for f in form %}
+            {{ f }}
+        {% endfor %}
+        <button type="submit">Войти</button>
+    </form>
+    <div class="register-link">
+        <p>Нет аккаунта? <a href="{% url "users:registration" %}">Зарегистрируйтесь</a></p>
+    </div>
+</div>
+{% endblock content %}
+
+
+{% block sidebar %}{% endblock sidebar %}
