@@ -11,9 +11,9 @@
 <div class="post-container">
     <div class="post-header">
         {% if post.author.photo %}
-        <img src="{{ post.author.photo.url }}" alt="Фото автора">
+        <img src="{{ post.author.photo.url }}" alt="Фото {{ post.author.username }}">
         {% else %}
-        <img src="{{ default_img }}" alt="Фото автора">
+        <img src="{{ default_img }}" alt="Фото {{ post.author.username }}">
         {% endif %}
         
         <div class="author-info">
@@ -57,24 +57,26 @@
             {% for comment in post.comments.all %}
                 <div class="comment">
                     <strong>{{ comment.user.username }}</strong>
-                    <p>{{ comment.content }}</p>
-                    <a href="#" class="reply-link" data-parent-id="{{ comment.id }}">Ответить</a>
-                    {% if comment.user == request.user %}
-                            <form method="post" action="{% url 'comment_delete' comment.id %}" style="display:inline;">
-                                {% csrf_token %}
-                                <input type="hidden" name="_method" value="DELETE">
-                                <button type="submit">Удалить</button>
-                            </form>
+                    <p>{{ comment.content|linebreaksbr }}</p>
+                    <!-- Кнопка "Ответить" -->
+                    <a href="#" class="reply-link" data-comment-id="{{ comment.id }}">Ответить</a>
+                    {% if request.user == comment.user %}
+                    <form method="post" action="{% url 'comment_delete' comment.id %}" style="display:inline;">
+                        {% csrf_token %}
+                        <input type="hidden" name="_method" value="DELETE">
+                        <button type="submit">Удалить</button>
+                    </form>
+                    <a href="{% url "edit_comment" post.slug comment.id %}">Редактировать</a>
                     {% endif %}
 
+                    <!-- Форма для ответа на комментарий -->
                     <form class="reply-form" id="reply-form-{{ comment.id }}" method="post" action="{% url 'add_comment' post.slug %}">
                         {% csrf_token %}
                         {{ form.as_p }}
                         <input type="hidden" name="parent_id" value="{{ comment.id }}">
                         <button type="submit">Ответить на комментарий</button>
                     </form>
-                    
-                    
+
                     <!-- Вложенные комментарии -->
                     {% for reply in comment.replies.all %}
                         <div class="reply">
@@ -132,5 +134,24 @@
 {% block sidebar %}{% endblock sidebar %}
 
 {% block js %}
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        var replyLinks = document.querySelectorAll('.reply-link');
 
+        replyLinks.forEach(function(link) {
+            link.addEventListener('click', function(event) {
+                event.preventDefault();
+                var commentId = this.getAttribute('data-comment-id');
+                // Скрыть все формы для ответов
+                var replyForms = document.querySelectorAll('.reply-form');
+                replyForms.forEach(function(form) {
+                    form.style.display = 'none';
+                });
+                // Показать форму для текущего комментария
+                var replyForm = document.getElementById('reply-form-' + commentId);
+                replyForm.style.display = 'block';
+            });
+        });
+    });
+</script>
 {% endblock js %}

@@ -3,7 +3,7 @@ from django.db import models
 from django.utils.text import slugify
 from django.contrib.auth import get_user_model
 from django.urls import reverse
-import unicodedata
+from django.core.validators import MaxLengthValidator
 
 
 TRANSLIT_DICT = {
@@ -100,7 +100,7 @@ class Comment(models.Model):
     user = models.ForeignKey(to=get_user_model(), on_delete=models.CASCADE, related_name="comments")
     post = models.ForeignKey(to="Post", on_delete=models.CASCADE, related_name="comments")
     parent = models.ForeignKey('self', on_delete=models.CASCADE, null=True, blank=True, related_name="replies")
-    content = models.TextField()
+    content = models.TextField(max_length=300, validators=[MaxLengthValidator(300)])
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     

@@ -8,15 +8,11 @@ User = get_user_model()
 
 
 class UserLoginForm(AuthenticationForm):
-    
-    
+    username = forms.CharField(widget=forms.TextInput(attrs={'placeholder': "Имя пользователя"}))
+    password = forms.CharField(widget=forms.PasswordInput(attrs={"placeholder": "Пароль"}))
     class Meta:
         model = User
         fields = ['username', 'password']
-        widgets = {
-            "username": forms.TextInput(attrs={"placeholder": "Имя пользователя",}),
-            "password": forms.TextInput(attrs={"placeholder": "Пароль",}),
-        }
         
         
 class RegistrationUserForm(UserCreationForm):

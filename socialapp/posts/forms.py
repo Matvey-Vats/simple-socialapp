@@ -9,7 +9,7 @@ class AddPageForm(forms.ModelForm):
         fields = ('title', 'content', 'photo', 'category', 'tags')
         widgets = {
             'title': forms.TextInput(attrs={"class": 'form-input', "placeholder": 'Заголовок'}),
-            'content': forms.Textarea(attrs={'cols': 150, 'row': 5}),
+            'content': forms.Textarea(attrs={'cols': 150, 'row': 5, 'placeholder': "Контент"}),
         }
         
 class CommentCreateForm(forms.ModelForm):
@@ -17,3 +17,10 @@ class CommentCreateForm(forms.ModelForm):
     class Meta:
         model = Comment
         fields = ['content']
+        
+        
+    def clean_content(self):
+        content = self.cleaned_data['content']
+        if len(content) > 300:
+            raise forms.ValidationError("Комментарий не может превышать 300 символов")
+        return content

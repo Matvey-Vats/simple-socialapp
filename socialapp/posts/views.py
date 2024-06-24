@@ -7,6 +7,7 @@ from django.urls import reverse_lazy
 from django.views.generic.edit import FormMixin
 from django.shortcuts import render, get_object_or_404, HttpResponse
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, View
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.conf import settings
 
 from .utils import DataMixin
@@ -19,7 +20,7 @@ class PostListView(DataMixin, ListView):
     context_object_name = "posts"
     title_page = "Главная страница"
     cat_selected = 0
-    paginate_by = 10
+    paginate_by = 3
     extra_context = {"default_image": settings.DEFAULT_USER_IMAGE}
     
     
@@ -39,7 +40,7 @@ class PostDetailView(DataMixin, DetailView):
     def get_object(self, queryset=None):
         return get_object_or_404(Post.published, slug=self.kwargs[self.slug_url_kwarg])
     
-class AddCommentView(View):
+class AddCommentView(LoginRequiredMixin, View):
     
     
     def dispatch(self, request, *args, **kwargs):
@@ -76,8 +77,15 @@ class AddCommentView(View):
         return redirect('post_detail', post_slug=post_slug)
 
 
-class CommentUpdateView(UpdateView):
-    pass
+class CommentUpdateView(LoginRequiredMixin, UpdateView):
+    model = Comment
+    fields = ['content']
+    template_name = "posts/comment_edit.html"
+    pk_url_kwarg = "comment_id"
+    
+    def get_success_url(self) -> str:
+        post_slug = self.object.post.slug
+        return reverse_lazy("post_detail", kwargs={"post_slug": post_slug})
     
 class PostCategoryListView(DataMixin, ListView):
     template_name = "posts/index.html"
@@ -107,7 +115,7 @@ class PostTagsListView(DataMixin, ListView):
 
 
     
-class PostCreateView(DataMixin, CreateView):
+class PostCreateView(LoginRequiredMixin, DataMixin, CreateView):
     form_class = AddPageForm
     template_name = "posts/add_post.html"
     title_page = "Добавление поста"
