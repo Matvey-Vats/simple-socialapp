@@ -5,10 +5,11 @@ from django.utils.text import slugify
 from django.shortcuts import redirect
 from django.urls import reverse_lazy
 from django.views.generic.edit import FormMixin
-from django.shortcuts import render, get_object_or_404, HttpResponse
+from django.shortcuts import render, get_object_or_404, HttpResponseRedirect, HttpResponse
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, View
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.conf import settings
+from django.db.models import Count
 
 from .utils import DataMixin
 from .models import Post, TagPost, Comment
@@ -20,8 +21,8 @@ class PostListView(DataMixin, ListView):
     context_object_name = "posts"
     title_page = "Главная страница"
     cat_selected = 0
-    paginate_by = 3
-    extra_context = {"default_image": settings.DEFAULT_USER_IMAGE}
+    paginate_by = 9
+    # extra_context = {"default_image": settings.DEFAULT_USER_IMAGE}
     
     
     def get_queryset(self) -> QuerySet[Any]:
@@ -35,6 +36,10 @@ class PostDetailView(DataMixin, DetailView):
     
     def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
         context = super().get_context_data(**kwargs)
+        post = context['post']
+        context['liked'] = False
+        if self.request.user.is_authenticated:
+            context['liked'] = post.likes.filter(id=self.request.user.id).exists()
         return self.get_mixin_context(context, title=context["post"].title, form=CommentCreateForm())
     
     def get_object(self, queryset=None):
@@ -126,8 +131,48 @@ class PostCreateView(LoginRequiredMixin, DataMixin, CreateView):
         w = form.save()
         return super().form_valid(form)
     
-
+class PostUpdateView(LoginRequiredMixin, DataMixin, UpdateView):
+    model = Post
+    form_class = AddPageForm
+    title_page = "Редактирование поста"
+    template_name = "posts/add_post.html"
     
+    
+    def form_valid(self, form):
+        post = form.save(commit=False)
+        post.author = self.request.user
+        # if not self.request.FILES.get('photo'):
+        #     post.photo = self.get_object().photo
+            
+        post = form.save()
+        return super().form_valid(form)
+        
+    def get_success_url(self) -> str:
+        return reverse_lazy("home")
+    
+    def get_object(self, queryset: QuerySet[Any] | None = ...) -> Model:
+        return get_object_or_404(Post, slug=self.kwargs["slug"])
+    
+    
+class RecomendationListView(DataMixin, ListView):
+    posts_count = 30
+    template_name = "posts/recomendation.html"
+    title_page = "Страница рекомендаций"
+    context_object_name = "posts"
+    paginate_by = 9
+    
+    
+    def get_queryset(self) -> QuerySet[Any]:
+        return Post.published.annotate(like_count=Count('likes')).order_by("-like_count")[:self.posts_count]
+
+def like_post(request, post_slug):
+    post = get_object_or_404(Post, slug=post_slug)
+    if request.user.is_authenticated:
+        if post.likes.filter(id=request.user.id).exists():
+            post.likes.remove(request.user)
+        else:
+            post.likes.add(request.user)
+    return HttpResponseRedirect(reverse_lazy("post_detail", args=[post_slug]))
 
 
 def about(request):

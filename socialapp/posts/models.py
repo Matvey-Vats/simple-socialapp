@@ -42,6 +42,8 @@ class Post(models.Model):
     is_published = models.BooleanField(choices=tuple(map(lambda x: (bool(x[0]), x[1]), Status.choices)), default=Status.PUBLISHED)
     category = models.ForeignKey(to="Category", on_delete=models.PROTECT, related_name="posts")
     tags = models.ManyToManyField("TagPost", blank=True, related_name="tags")
+    likes = models.ManyToManyField(get_user_model(), related_name="likes_posts", blank=True)
+    
     
     author = models.ForeignKey(get_user_model(), on_delete=models.SET_NULL, related_name='posts', null=True)
     
@@ -51,11 +53,22 @@ class Post(models.Model):
     def __str__(self) -> str:
         return self.title
     
+    
+    @property
+    def image_url(self):
+        if self.photo and hasattr(self.photo, 'url'):
+            return self.photo.url
+        
+    def total_likes(self):
+        return self.likes.count()
+    
     class Meta:
         ordering = ["-time_create"]
         indexes = [
             models.Index(fields=['-time_create'])
         ]
+        verbose_name = "Публикация"
+        verbose_name_plural = "Публикации"
         
     def get_absolute_url(self):
         return reverse("post_detail", kwargs={"post_slug": self.slug})
@@ -76,6 +89,10 @@ class Category(models.Model):
     name = models.CharField(max_length=125, db_index=True)
     slug = models.SlugField(max_length=255, unique=True, db_index=True)
     
+    class Meta:
+        verbose_name = "Категория"
+        verbose_name_plural = "Категории"
+    
     def __str__(self) -> str:
         return self.name
     
@@ -87,6 +104,9 @@ class TagPost(models.Model):
     tag = models.CharField(max_length=100, db_index=True)
     slug = models.SlugField(max_length=255, db_index=True, unique=True)
     
+    class Meta:
+        verbose_name = "Тег"
+        verbose_name_plural = "Теги"
     
     def __str__(self) -> str:
         return self.tag

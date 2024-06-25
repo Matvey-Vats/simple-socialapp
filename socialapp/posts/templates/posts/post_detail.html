@@ -21,10 +21,23 @@
             <p>{{ post.time_create }}</p>
         </div>
         
+        <p>Лайки: {{ post.total_likes }}</p>
+        {% if user.is_authenticated %}
+        <form action="{% url 'like_post' post.slug %}" method="POST">
+        {% csrf_token %}
+        {% if liked %}
+            <button type="submit" name="post_id" value="{{ post.id }}">Unlike</button>
+        {% else %}
+            <button type="submit" name="post_id" value="{{ post.id }}">Like</button>
+        {% endif %}
+        </form>
+        {% else %}
+            <p><a href="{% url 'users:login' %}?next={{ request.path }}">Log in to like this post.</a></p>
+        {% endif %}
     </div>
     
     <h1>{{ post.title }}</h1>
-    <img class="post-img" src="{{ post.photo.url }}" alt="Изображение поста">
+    <img class="post-img" src="{{ post.image_url }}" alt="Изображение поста">
     
     <div class="post-content">
         <p>{{ post.content }}</p>
@@ -36,6 +49,10 @@
             <a href="{% url 'tag_detail' tag.slug %}" class="tag">{{ tag.tag }}</a>
         {% endfor %}
     </div>
+
+    {% if request.user == post.author %}
+    <a href="{% url "update_post" post.slug %}">Редактировать</a>
+    {% endif %}
     
     <hr>
     

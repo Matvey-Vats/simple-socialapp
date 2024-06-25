@@ -6,7 +6,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Социальная сеть</title>
+    <title>{{ title }}</title>
     <link rel="stylesheet" href="{% static "posts/css/index.css" %}">
     {% block css %}{% endblock css %}
 </head>
@@ -15,6 +15,7 @@
         <nav>
             <a href="/">Главная</a>
             <a href="{% url "add_post" %}">Добавить пост</a>
+            <a href="{% url "recomendations" %}">Рекомендации</a>
             {% if user.is_authenticated %}
                 <a href="{% url "users:profile" %}">{{ user.username }}</a> | <a href="{% url "users:logout" %}">Выйти</a>
             {% else %}
@@ -47,7 +48,7 @@
                 </div>
                 <div class="tags">
                     <h3>Теги</h3>
-                    {% show_all_tags %}
+                    {% show_populate_tags %}
                     <!-- Добавьте больше тегов здесь -->
                 </div>
             </aside>

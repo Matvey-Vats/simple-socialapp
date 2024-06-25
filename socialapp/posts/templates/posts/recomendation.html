@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% load static %}
+
 
 {% block content %}
 <section class="posts">
@@ -26,6 +26,7 @@
 
     {% include "posts/include/pagination.html" with posts=page_obj %}
 </section>
-
-
 {% endblock content %}
+
+
+{% block sidebar %}{% endblock sidebar %}

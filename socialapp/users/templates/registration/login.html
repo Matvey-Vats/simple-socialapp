@@ -9,6 +9,7 @@
     <form class="login-form" action="{% url 'users:login' %}" method="post">
         {% csrf_token %}
         <div class="form-error">{{ form.non_field_errors }}</div>
+        <input type="hidden" name="next" value="{{ next }}"></input>
         {% for f in form %}
             {{ f }}
         {% endfor %}
