@@ -25,4 +25,12 @@
 </div>
 {% endblock content %}
 
-{% block sidebar %}{% endblock sidebar %}
+{% block sidebar %}
+    <div class="sidebar-bar"> 
+        <ul class="sidebar-list">
+            <li><a href="{% url 'users:my_posts' %}">Мои посты</a></li>
+            <li><a href="{% url 'users:favorite_posts' %}">Любимые посты</a></li>
+            <li><a href="{% url 'users:my_comments' %}">Мои комментарии</a></li>
+        </ul>
+    </div>
+{% endblock sidebar %}

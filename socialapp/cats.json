@@ -1,0 +1,18 @@
+[
+    {
+        "model": "posts.category",
+        "pk": 1,
+        "fields": {
+            "name": "�����",
+            "slug": "sport"
+        }
+    },
+    {
+        "model": "posts.category",
+        "pk": 2,
+        "fields": {
+            "name": "������",
+            "slug": "muzyka"
+        }
+    }
+]

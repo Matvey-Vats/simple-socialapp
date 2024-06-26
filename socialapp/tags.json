@@ -1,0 +1,74 @@
+[
+    {
+        "model": "posts.tagpost",
+        "pk": 1,
+        "fields": {
+            "tag": "�����",
+            "slug": "sport"
+        }
+    },
+    {
+        "model": "posts.tagpost",
+        "pk": 2,
+        "fields": {
+            "tag": "�����������",
+            "slug": "kalistenika"
+        }
+    },
+    {
+        "model": "posts.tagpost",
+        "pk": 3,
+        "fields": {
+            "tag": "�������",
+            "slug": "vorkaut"
+        }
+    },
+    {
+        "model": "posts.tagpost",
+        "pk": 4,
+        "fields": {
+            "tag": "����������",
+            "slug": "disciplina"
+        }
+    },
+    {
+        "model": "posts.tagpost",
+        "pk": 5,
+        "fields": {
+            "tag": "���������",
+            "slug": "motivaciya"
+        }
+    },
+    {
+        "model": "posts.tagpost",
+        "pk": 6,
+        "fields": {
+            "tag": "������",
+            "slug": "muzyka"
+        }
+    },
+    {
+        "model": "posts.tagpost",
+        "pk": 7,
+        "fields": {
+            "tag": "�����",
+            "slug": "metal"
+        }
+    },
+    {
+        "model": "posts.tagpost",
+        "pk": 8,
+        "fields": {
+            "tag": "���",
+            "slug": "rok"
+        }
+    },
+    {
+        "model": "posts.tagpost",
+        "pk": 9,
+        "fields": {
+            "tag": "������",
+            "slug": "gitara"
+        }
+    }
+]

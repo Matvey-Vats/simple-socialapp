@@ -1,19 +1,6 @@
 {% extends "base.html" %}
-{% load static %}
-
-
-{% block css %}
-<link rel="stylesheet" href="{% static "posts/css/recomendation.css" %}">
-<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-{% endblock css %}
 
 {% block content %}
-<div class="search-container">
-    <form class="search-form" method="get" action="{% url "search_post" %}">
-        <input type="text" name="query" placeholder="Поиск" class="input-group">
-        <button type="submit">Поиск</button>
-    </form>
-</div>
 <section class="posts">
     
     {% for post in posts %}

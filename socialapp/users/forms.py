@@ -8,12 +8,15 @@ User = get_user_model()
 
 
 class UserLoginForm(AuthenticationForm):
-    username = forms.CharField(widget=forms.TextInput(attrs={'placeholder': "Имя пользователя"}))
-    password = forms.CharField(widget=forms.PasswordInput(attrs={"placeholder": "Пароль"}))
     class Meta:
         model = User
         fields = ['username', 'password']
-        
+    
+    def __init__(self, *args, **kwargs):
+        super(UserLoginForm, self).__init__(*args, **kwargs)
+        self.fields['username'].widget.attrs.update({'placeholder': 'Имя пользователя'})
+        self.fields['password'].widget.attrs.update({'placeholder': 'Пароль'})
+
         
 class RegistrationUserForm(UserCreationForm):
     password1 = forms.CharField(widget=forms.PasswordInput(attrs={"placeholder": "Пароль"}))

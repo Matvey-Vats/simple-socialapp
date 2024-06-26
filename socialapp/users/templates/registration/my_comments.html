@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block css %}
+<link rel="stylesheet" href="{% static "users/css/my_comments.css" %}">
+{% endblock css %}
+
+{% block content %}
+<div class="container">
+    <h1>Мои комментарии</h1>
+    <hr>
+    {% if comments %}
+        {% for comment in comments %}
+            <div class="comment">
+                <p><strong>Пост:</strong> <a href="{{ comment.post.get_absolute_url }}">{{ comment.post.title }}</a></p>
+                <p><strong>Дата:</strong> {{ comment.created_at }}</p>
+                {% if comment.updated_at != comment.created_at %}
+                    <p><strong>Обновлен:</strong> {{ comment.updated_at }}</p>
+                {% endif %}
+                <p><strong>Комментарий:</strong> {{ comment.content }}</p>
+                <hr>
+            </div>
+        {% endfor %}
+    {% else %}
+        <p>Вы еще не оставили ни одного комментария.</p>
+    {% endif %}
+</div>
+{% endblock content %}
+
+{% block sidebar %}{% endblock sidebar %}

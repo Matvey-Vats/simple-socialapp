@@ -165,6 +165,19 @@ class RecomendationListView(DataMixin, ListView):
     def get_queryset(self) -> QuerySet[Any]:
         return Post.published.annotate(like_count=Count('likes')).order_by("-like_count")[:self.posts_count]
 
+
+def search_posts(request):
+    query = request.GET.get("query")
+    posts = Post.published.all()
+    
+    if query:
+        posts = Post.published.filter(title__icontains=query)
+    
+    context = {
+        "posts": posts,
+    }
+    return render(request, "posts/recomendation.html", context)
+
 def like_post(request, post_slug):
     post = get_object_or_404(Post, slug=post_slug)
     if request.user.is_authenticated:

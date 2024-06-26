@@ -12,6 +12,12 @@ class AddPageForm(forms.ModelForm):
             'content': forms.Textarea(attrs={'cols': 150, 'row': 5, 'placeholder': "Контент"}),
         }
         
+        
+    def clean_title(self):
+        title = self.cleaned_data["title"]
+        if len(title) > 50:
+            raise forms.ValidationError("Заголовок не может превышать 50 символов")
+        return title
 class CommentCreateForm(forms.ModelForm):
     
     class Meta:
