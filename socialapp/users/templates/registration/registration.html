@@ -7,7 +7,7 @@
 
 {% block content %}
 <div class="register-container">
-    <h2>Авторизация</h2>
+    <h2>Регистрация</h2>
     <form class="register-form" action="{% url 'users:registration' %}" method="post">
         {% csrf_token %}
         <div class="form-error">{{ form.non_field_errors }}</div>

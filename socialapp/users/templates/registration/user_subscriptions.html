@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% load static %}
+
+
+{% block css %}
+<link rel="stylesheet" href="{% static "users/css/user_subscriptions.css" %}">
+{% endblock css %}
+
+{% block content %}
+<div class="container">
+    <div class="profile-header">
+        <h1>Подписки {{ profile_user.username }}</h1>
+    </div>
+    <ul class="subscribtions-list">
+        {% for subscription in subscriptions %}
+            <li class="subscribtion-item">
+                {% if subscription.photo %}
+                <img src="{{ subscription.photo.url }}" alt="{{ subscription.username }}">
+                {% else %}
+                <img src="{{ default_img }}" alt="{{ subscription.username }}">
+                {% endif %}
+                
+                <a href="{% url "users:user_profile" subscription.username %}">{{ subscription.username }}</a>
+            </li>
+        {% endfor %}
+    </ul>
+
+
+</div>
+{% endblock content %}
+
+
+
+
+
+{% block sidebar %}{% endblock sidebar %}

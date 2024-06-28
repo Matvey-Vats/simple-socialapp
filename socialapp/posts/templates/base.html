@@ -34,7 +34,7 @@
         
         {% block sidebar %}
             <aside class="sidebar">
-                <div class="categories">
+                {% comment %} <div class="categories">
                     {% if cat_selected == 0 %}
                     <h3>Категории</h3>
                     {% else %}
@@ -45,7 +45,7 @@
                         {% show_categories cat_selected %}
                         <!-- Добавьте больше категорий здесь -->
                     </ul>
-                </div>
+                </div> {% endcomment %}
                 <div class="tags">
                     <h3>Теги</h3>
                     {% show_populate_tags %}

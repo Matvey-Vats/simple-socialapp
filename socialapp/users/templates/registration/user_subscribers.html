@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% load static %}
+
+
+{% block css %}
+<link rel="stylesheet" href="{% static "users/css/user_subscribers.css" %}">
+{% endblock css %}
+
+
+{% block content %}
+<div class="container">
+
+    <div class="profile-header">
+        <h1>Подписчики {{ profile_user.username }}</h1>
+    </div>
+    <ul class="subscribers-list">
+        {% for subscriber in subscribers %}
+            <li class="subscriber-item">
+                {% if subscriber.photo %}
+                <img src="{{ subscriber.photo.url }}" alt="{{ subscriber.username }}">
+                {% else %}
+                <img src="{{ default_img }}" alt="{{ subscriber.username }}">
+                {% endif %}
+                <a href="{% url 'users:user_profile' subscriber.username %}">{{ subscriber.username }}</a>
+            </li>
+        {% endfor %}
+    </ul>
+</div>
+{% endblock content %}
+
+
+{% block sidebar %}{% endblock sidebar %}

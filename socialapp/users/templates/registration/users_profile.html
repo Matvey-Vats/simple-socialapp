@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+{% load static %}
+
+
+{% block css %}
+<link rel="stylesheet" href="{% static "users/css/user_profile.css" %}">
+{% endblock css %}
+
+{% block content %}
+{% comment %}
+<div class="profile-container">
+    <div class="profile-header">
+        <img src="{{ profile_user.photo.url }}" class="user-photo">
+        <h1>{{ profile_user.username }}</h1>
+    </div>
+    <div class="profile-actions">
+        {% if request.user != profile_user %}
+                    <form method="post" action="{% url 'users:user_profile' profile_user.username %}">
+                        {% csrf_token %}
+                        <button type="submit" name="{% if is_subscribed %}unsubscribe{% else %}subscribe{% endif %}">
+                            {% if is_subscribed %}
+                                Отписаться
+                            {% else %}
+                                Подписаться
+                            {% endif %}
+                        </button>
+                    </form>
+                    {% if is_subscribed %}
+                    <a href="{% url "users:unsubscribe" profile_user.username %}">Отписаться</a>
+                    {% else %}
+                    <a href="{% url "users:subscribe" profile_user.username %}">Подписаться</a>
+                    {% endif %}
+        {% endif %}
+    </div>
+    <div class="profile-stats">
+        <p>{{ profile_user.subscribers.count }}</p>
+        <a href="#">Подписки</a> |
+        <a href="#">Подписчики</a>
+    </div>
+    <section class="posts">
+    
+        {% for post in profile_user.posts.all %}
+            <div class="post-card">
+                <img src="{{ post.image_url }}" alt="{{ post.title }}" class="post-image">
+                <div class="post-content">
+                    <h2 class="post-title">{{ post.title|truncatewords:20 }}</h2>
+                    <a href="{{ post.get_absolute_url }}" class="view-button">Посмотреть</a>
+                </div>
+            </div>
+        {% endfor %}
+    
+    </section>
+</div> {% endcomment %}
+
+<div class="profile-container">
+    <div class="profile-header">
+        <img src="{{ profile_user.photo.url }}" alt="User Profile Picture" class="profile-picture">
+        <div class="profile-info">
+            <h2 class="username">{{ profile_user.username }}</h2>
+            {% if is_subscribed %}
+                <p><a id="unsubscribe" href="{% url "users:unsubscribe" profile_user.username %}">Отписаться</a></p>
+            {% else %}
+                <p><a href="{% url "users:subscribe" profile_user.username %}">Подписаться</a></p>
+            {% endif %}
+            <div class="followers">
+                <a href="{% url "users:subscribers_list" profile_user.username %}" class="followers-link">Подписчики: {{ profile_user.subscribers.count }}</a>
+                <a href="{% url "users:subscriptions_list" profile_user.username %}" class="following-link">Подписки: {{ profile_user.subscriptions.count }}</a>
+            </div>
+        </div>
+    </div>
+    <section class="posts">
+    
+        {% for post in profile_user.posts.all %}
+            <div class="post-card">
+                <img src="{{ post.image_url }}" alt="{{ post.title }}" class="post-image">
+                <div class="post-content">
+                    <h2 class="post-title">{{ post.title|truncatewords:20 }}</h2>
+                    <a href="{{ post.get_absolute_url }}" class="view-button">Посмотреть</a>
+                </div>
+            </div>
+        {% endfor %}
+    
+    </section>
+</div>
+
+{% endblock content %}
+
+
+{% block sidebar %}{% endblock sidebar %}
