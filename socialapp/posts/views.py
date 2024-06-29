@@ -9,6 +9,7 @@ from django.shortcuts import render, get_object_or_404, HttpResponseRedirect, Ht
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, View
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.conf import settings
+from django.contrib.auth import get_user_model
 from django.db.models import Count
 
 from .utils import DataMixin
@@ -26,7 +27,7 @@ class PostListView(DataMixin, ListView):
     
     
     def get_queryset(self) -> QuerySet[Any]:
-        return Post.published.all()
+        return Post.published.all().select_related("author")
     
 
 class PostDetailView(DataMixin, DetailView):
@@ -154,16 +155,29 @@ class PostUpdateView(LoginRequiredMixin, DataMixin, UpdateView):
         return get_object_or_404(Post, slug=self.kwargs["slug"])
     
     
-class RecomendationListView(DataMixin, ListView):
+class RecomendationListView(LoginRequiredMixin, DataMixin, ListView):
     posts_count = 30
     template_name = "posts/recomendation.html"
     title_page = "Страница рекомендаций"
-    context_object_name = "posts"
+    context_object_name = "most_likes_posts"
     paginate_by = 9
     
     
+    
+    def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
+        context = super().get_context_data(**kwargs)
+        subscriptions = self.request.user.subscriptions.all()
+        subscription_posts = Post.published.filter(author__in=subscriptions).order_by("-time_create").select_related("author")
+        
+        recommended_users = get_user_model().objects.filter(subscribers__in=subscriptions).exclude(id__in=subscriptions).distinct().select_related("author")
+        recommended_posts = Post.published.filter(author__in=recommended_users).exclude(author__in=subscriptions).order_by("-time_create").select_related("author")
+        combined_posts = subscription_posts | recommended_posts
+        context["combined_posts"] = combined_posts.distinct()
+        return self.get_mixin_context(context)
+    
+    
     def get_queryset(self) -> QuerySet[Any]:
-        return Post.published.annotate(like_count=Count('likes')).order_by("-like_count")[:self.posts_count]
+        return Post.published.annotate(like_count=Count('likes')).order_by("-like_count")[:self.posts_count].select_related("author")
 
 
 def search_posts(request):

@@ -13,10 +13,37 @@
         <input type="text" name="query" placeholder="Поиск" class="input-group">
         <button type="submit">Поиск</button>
     </form>
+    <ul>
+        <li><a href='#'>Самые залайканные</a></li>
+        <li><a href='#'>Мои рекемендации</a></li>
+        <li><a href='#'>Самые залайканные</a></li>
+    </ul>
 </div>
 <section class="posts">
     
-    {% for post in posts %}
+    <h2>Мои рекемендации</h2>
+    {% for post in combined_posts %}
+        <div class="post-card">
+            <img src="{{ post.image_url }}" alt="{{ post.title }}" class="post-image">
+            <div class="post-content">
+                <div class="post-header">
+                    {% if post.author.photo %}
+                    <img src="{{ post.author.photo.url }}" alt="{{ post.author.username }}" class="author-avatar">
+                    {% else %}
+                    <img src="{{ default_img }}" alt="{{ post.author.username }}" class="author-avatar">
+                    {% endif %}
+                    
+                    <span class="author-name">{{ post.author.username }}</span>
+                    <span class="post-date">{{ post.time_create }}</span>
+                </div>
+                <h2 class="post-title">{{ post.title|truncatewords:20 }}</h2>
+                <p class="post-excerpt">{{ post.content|truncatewords:50 }}</p>
+                <a href="{{ post.get_absolute_url }}" class="view-button">Посмотреть</a>
+            </div>
+        </div>
+    {% endfor %}
+    <h2>Самые залайканные</h2>
+    {% for post in most_likes_posts %}
         <div class="post-card">
             <img src="{{ post.image_url }}" alt="{{ post.title }}" class="post-image">
             <div class="post-content">
