@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block css %}
+<link rel="stylesheet" href="{% static "groups/css/group_list.css" %}">
+{% endblock css %}
+
+
+{% block content %}
+<div class="container">
+    <h1>Available Groups</h1>
+    <div class="groups-list">
+        {% for group in groups %}
+        <div class="group-card">
+            <img src="{{ group.cover_image.url }}" alt="{{ group.name }}" class="group-image">
+            <div class="group-content">
+                <h2 class="group-title">{{ group.name }}</h2>
+                <p class="group-info"><strong>Admin:</strong> {{ group.owner.username }}</p>
+                <p class="group-info"><strong>Date:</strong> {{ group.created_at|date:"Y-m-d" }}</p>
+                <p class="group-description">{{ group.description|truncatewords:20 }}</p>
+                <a href="{% url "groups:group_detail" group.slug %}" class="group-view-button">View</a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock content %}
+
+
+{% comment %} {% block sidebar %}{% endblock sidebar %} {% endcomment %}

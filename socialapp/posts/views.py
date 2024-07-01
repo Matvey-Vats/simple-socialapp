@@ -8,6 +8,7 @@ from django.views.generic.edit import FormMixin
 from django.shortcuts import render, get_object_or_404, HttpResponseRedirect, HttpResponse
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, View
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.decorators import login_required
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.db.models import Count
@@ -192,6 +193,7 @@ def search_posts(request):
     }
     return render(request, "posts/recomendation.html", context)
 
+@login_required
 def like_post(request, post_slug):
     post = get_object_or_404(Post, slug=post_slug)
     if request.user.is_authenticated:

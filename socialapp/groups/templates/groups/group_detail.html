@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% load static %}
+
+
+
+{% block css %}
+<link rel="stylesheet" href="{% static "groups/css/group_detail.css" %}">
+{% endblock css %}
+
+
+
+{% block content %}
+<div class="container">
+    <div class="group-header">
+        <img src="{{ group.cover_image.url }}" alt="{{ group.name }}" class="group-image">
+        <div class="group-details">
+            <h1 class="group-title">{{ group.name }}</h1>
+            <p class="group-info"><strong>Админ:</strong> {{ group.owner.username }}</p>
+            <p class="group-info"><strong>Дата:</strong> {{ group.created_at|date:"Y-m-d" }}</p>
+        </div>
+    </div>
+    <div class="group-description">
+        <p>{{ group.description }}</p>
+    </div>
+    <div class="group-members">
+        <h2>Members</h2>
+        <ul class="member-list">
+            {% for member in members %}
+            <li class="member-item">{{ member.user.username }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+    {% comment %} <a href="{% url 'group_posts' group.id %}" class="group-posts-link">View Posts</a> {% endcomment %}
+</div>
+{% endblock content %}
+
+
+
+{% block sidebar %}{% endblock sidebar %}
