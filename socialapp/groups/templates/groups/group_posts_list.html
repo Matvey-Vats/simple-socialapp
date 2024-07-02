@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block css %}
+<link rel="stylesheet" href="{% static "groups/css/group_posts.css" %}">
+{% endblock css %}
+
+{% block content %}
+<div class="container">
+    <div class="group-header">
+        <img src="{{ group.cover_image.url }}" alt="{{ group.name }}" class="group-image">
+        <div class="group-details">
+            <h1 class="group-title">{{ group.name }}</h1>
+            <p class="group-info"><strong>Admin:</strong> {{ group.owner.username }}</p>
+            <p class="group-info"><strong>Date:</strong> {{ group.created_at|date:"Y-m-d" }}</p>
+        </div>
+    </div>
+    <ul class="posts-list">
+        {% for post in posts %}
+        <div class="post-card">
+            <img src="{{ post.photo.url }}" alt="{{ post.title }}" class="post-image">
+            <div class="post-content">
+                <div class="post-header">
+                    {% if post.author.photo %}
+                    <img src="{{ post.author.photo.url }}" alt="{{ post.author.username }}" class="author-avatar">
+                    {% else %}
+                    <img src="{{ default_img }}" alt="{{ post.author.username }}" class="author-avatar">
+                    {% endif %}
+                    
+                    <span class="author-name">{{ post.author.username }}</span>
+                    <span class="post-date">{{ post.time_create }}</span>
+                </div>
+                <h2 class="post-title">{{ post.title|truncatewords:20 }}</h2>
+                <p class="post-excerpt">{{ post.content|truncatewords:50 }}</p>
+                <a href="{{ post.get_absolute_url }}" class="view-button">Посмотреть</a>
+            </div>
+        </div>
+        {% endfor %}
+    </ul>
+    {% comment %} <div class="pagination">
+        {% if is_paginated %}
+            {% if page_obj.has_previous %}
+                <a href="?page={{ page_obj.previous_page_number }}">&laquo; Previous</a>
+            {% endif %}
+            {% for num in page_obj.paginator.page_range %}
+                {% if page_obj.number == num %}
+                    <span>{{ num }}</span>
+                {% else %}
+                    <a href="?page={{ num }}">{{ num }}</a>
+                {% endif %}
+            {% endfor %}
+            {% if page_obj.has_next %}
+                <a href="?page={{ page_obj.next_page_number }}">Next &raquo;</a>
+            {% endif %}
+        {% endif %}
+    </div> {% endcomment %}
+</div>
+{% endblock content %}
+
+
+
+{% block sidebar %}{% endblock sidebar %}

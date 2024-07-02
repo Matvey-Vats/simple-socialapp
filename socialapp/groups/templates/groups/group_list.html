@@ -8,7 +8,8 @@
 
 {% block content %}
 <div class="container">
-    <h1>Available Groups</h1>
+    {% if groups %}
+    <h1>Доступные группы</h1>
     <div class="groups-list">
         {% for group in groups %}
         <div class="group-card">
@@ -23,6 +24,9 @@
         </div>
         {% endfor %}
     </div>
+    {% else %}
+    <h1>Здесь пока ничего нету</h1>
+    {% endif %}
 </div>
 {% endblock content %}
 

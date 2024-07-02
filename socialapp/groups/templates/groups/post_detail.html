@@ -1,0 +1,109 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block css %}
+<link rel="stylesheet" href="{% static "groups/css/post_detail.css" %}">
+{% endblock css %}
+
+{% block content %}
+<div class="post-container">
+    <div class="post-header">
+        {% if post.author.photo %}
+        <img src="{{ post.author.photo.url }}" alt="Фото {{ post.author.username }}">
+        {% else %}
+        <img src="{{ default_img }}" alt="Фото {{ post.author.username }}">
+        {% endif %}
+        
+        <div class="author-info">
+            <a href="{% url "users:user_profile" post.author.username %}"><h2>{{ post.author.username }}</h2></a>
+            <p>{{ post.time_create }}</p>
+        </div>
+        
+        <p>Лайки: {{ post.total_likes }}</p>
+        {% if user.is_authenticated %}
+        <form action="{% url 'like_post' post.slug %}" method="POST">
+        {% csrf_token %}
+        {% if liked %}
+            <button type="submit" name="post_id" value="{{ post.id }}">Unlike</button>
+        {% else %}
+            <button type="submit" name="post_id" value="{{ post.id }}">Like</button>
+        {% endif %}
+        </form>
+        {% else %}
+            <p><a href="{% url 'users:login' %}?next={{ request.path }}">Log in to like this post.</a></p>
+        {% endif %}
+    </div>
+    
+    <h1>{{ post.title }}</h1>
+    <img class="post-img" src="{{ post.photo.url }}" alt="Изображение поста">
+    
+    <div class="post-content">
+        <p>{{ post.content }}</p>
+    </div>
+
+    <div class="tags-section">
+        <h2>Теги</h2>
+        {% for tag in post.tags.all %}
+            <a href="{% url 'tag_detail' tag.slug %}" class="tag">{{ tag.tag }}</a>
+        {% endfor %}
+    </div>
+
+    {% if request.user == post.author %}
+    <a href="{% url "update_post" post.slug %}">Редактировать</a>
+    {% endif %}
+    
+    <hr>
+    
+    <div class="comments-section">
+        <h2>Комментарии</h2>
+        
+        <!-- Форма для добавления комментариев -->
+        <form id="comment-form" method="post" action="{% url "add_comment" post.slug  %}">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <input type="hidden" name="parent_id" id="parent_id">
+            <button type="submit">Добавить комментарий</button>
+        </form>
+        
+        <hr>
+        
+        <!-- Список комментариев -->
+        <div id="comments-list">
+            {% for comment in post.comments.all %}
+                <div class="comment">
+                    <strong>{{ comment.user.username }}</strong>
+                    <p>{{ comment.content|linebreaksbr }}</p>
+                    <!-- Кнопка "Ответить" -->
+                    <a href="#" class="reply-link" data-comment-id="{{ comment.id }}">Ответить</a>
+                    {% if request.user == comment.user %}
+                    <form method="post" action="{% url 'comment_delete' comment.id %}" style="display:inline;">
+                        {% csrf_token %}
+                        <input type="hidden" name="_method" value="DELETE">
+                        <button type="submit">Удалить</button>
+                    </form>
+                    <a href="{% url "edit_comment" post.slug comment.id %}">Редактировать</a>
+                    {% endif %}
+
+                    <!-- Форма для ответа на комментарий -->
+                    <form class="reply-form" id="reply-form-{{ comment.id }}" method="post" action="{% url 'add_comment' post.slug %}">
+                        {% csrf_token %}
+                        {{ form.as_p }}
+                        <input type="hidden" name="parent_id" value="{{ comment.id }}">
+                        <button type="submit">Ответить на комментарий</button>
+                    </form>
+
+                    <!-- Вложенные комментарии -->
+                    {% for reply in comment.replies.all %}
+                        <div class="reply">
+                            <strong>{{ reply.user.username }}</strong>
+                            <p>{{ reply.content }}</p>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock content %}
+
+{% block sidebar %}{% endblock sidebar %}

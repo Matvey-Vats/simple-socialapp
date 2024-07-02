@@ -23,14 +23,18 @@
         <p>{{ group.description }}</p>
     </div>
     <div class="group-members">
+        {% if members %}
         <h2>Members</h2>
         <ul class="member-list">
             {% for member in members %}
-            <li class="member-item">{{ member.user.username }}</li>
+            <li class="member-item"><a href="{% url "users:user_profile" member.user.username %}">{{ member.user.username }}</li>
             {% endfor %}
         </ul>
+        {% else %}
+        <h2>Здесь пока никого нету</h2>
+        {% endif %}
     </div>
-    {% comment %} <a href="{% url 'group_posts' group.id %}" class="group-posts-link">View Posts</a> {% endcomment %}
+    <a href="{% url 'groups:group_posts' group.slug %}" class="group-posts-link">View Posts</a>
 </div>
 {% endblock content %}
 

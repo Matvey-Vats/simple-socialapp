@@ -56,5 +56,6 @@ class GroupPost(models.Model):
     
     
     def get_absolute_url(self):
-        return reverse("group_post_detail", kwargs={"slug": self.slug})
+        return reverse("post_detail", kwargs={"group_slug": self.group.slug,
+                                                    "post_slug": self.slug,})
     
