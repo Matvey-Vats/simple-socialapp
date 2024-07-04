@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Group, GroupMembership, GroupPost
+from .models import Group, GroupMembership, GroupPost, GroupComment
 # Register your models here.
 
 @admin.register(Group)
@@ -15,3 +15,6 @@ class GroupPostAdmin(admin.ModelAdmin):
     prepopulated_fields = {"slug": ('title',)}
     
     
+@admin.register(GroupComment)
+class GroupCommentAdmin(admin.ModelAdmin):
+    pass

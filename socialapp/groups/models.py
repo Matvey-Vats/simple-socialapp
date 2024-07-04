@@ -1,9 +1,9 @@
 from django.db import models
 from django.contrib.auth import get_user_model
 from posts.models import TagPost
+from django.core.validators import MaxLengthValidator
 from django.urls import reverse
 
-# Create your models here.
 class Group(models.Model):
     class Status(models.TextChoices):
         OPEN = "open", "Open"
@@ -39,7 +39,7 @@ class GroupMembership(models.Model):
     
 
 class GroupPost(models.Model):
-    group = models.ForeignKey(Group, related_name="posts", on_delete=models.CASCADE)
+    group = models.ForeignKey(Group, related_name="group_posts", on_delete=models.CASCADE)
     author = models.ForeignKey(get_user_model(), related_name="group_posts", on_delete=models.CASCADE)
     title = models.CharField(max_length=100)
     slug = models.SlugField(max_length=200, unique=True)
@@ -48,7 +48,7 @@ class GroupPost(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     tags = models.ManyToManyField(TagPost, blank=True, related_name="posts")
-    likes = models.ManyToManyField(GroupMembership, related_name="likes_posts", blank=True)
+    likes = models.ManyToManyField(get_user_model(), related_name="liked_group_posts", blank=True)
     
     
     def __str__(self) -> str:
@@ -58,4 +58,29 @@ class GroupPost(models.Model):
     def get_absolute_url(self):
         return reverse("post_detail", kwargs={"group_slug": self.group.slug,
                                                     "post_slug": self.slug,})
+    def total_likes(self):
+        return self.likes.count()
     
+    
+class GroupComment(models.Model):
+    user = models.ForeignKey(to=get_user_model(), on_delete=models.CASCADE, related_name="group_comments")
+    post = models.ForeignKey(to="GroupPost", on_delete=models.CASCADE, related_name="group_comments")
+    parent = models.ForeignKey('self', on_delete=models.CASCADE, null=True, blank=True, related_name="replies")
+    content = models.TextField(max_length=300, validators=[MaxLengthValidator(300)])
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        ordering = ["-created_at"] 
+        verbose_name = "Коментарий"
+        verbose_name_plural = "Коментарии"
+        
+        
+    def __str__(self) -> str:
+        return f"Коментарий от {self.user.username} на {self.post.title}"
+    
+    
+    @property
+    def is_reply(self):
+        return self.parent is not None
+        

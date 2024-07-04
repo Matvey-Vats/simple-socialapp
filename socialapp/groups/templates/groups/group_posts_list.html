@@ -32,7 +32,7 @@
                 </div>
                 <h2 class="post-title">{{ post.title|truncatewords:20 }}</h2>
                 <p class="post-excerpt">{{ post.content|truncatewords:50 }}</p>
-                <a href="{{ post.get_absolute_url }}" class="view-button">Посмотреть</a>
+                <a href="{% url "groups:post_detail" group.slug post.slug %}" class="view-button">Посмотреть</a>
             </div>
         </div>
         {% endfor %}

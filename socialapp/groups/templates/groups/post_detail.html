@@ -21,7 +21,7 @@
         
         <p>Лайки: {{ post.total_likes }}</p>
         {% if user.is_authenticated %}
-        <form action="{% url 'like_post' post.slug %}" method="POST">
+        <form action="{% url 'groups:like_post' group.slug post.slug %}" method="POST">
         {% csrf_token %}
         {% if liked %}
             <button type="submit" name="post_id" value="{{ post.id }}">Unlike</button>
@@ -58,7 +58,7 @@
         <h2>Комментарии</h2>
         
         <!-- Форма для добавления комментариев -->
-        <form id="comment-form" method="post" action="{% url "add_comment" post.slug  %}">
+        <form id="comment-form" method="post" action="{% url "groups:add_comment" group.slug post.slug  %}">
             {% csrf_token %}
             {{ form.as_p }}
             <input type="hidden" name="parent_id" id="parent_id">
@@ -69,23 +69,23 @@
         
         <!-- Список комментариев -->
         <div id="comments-list">
-            {% for comment in post.comments.all %}
+            {% for comment in post.group_comments.all %}
                 <div class="comment">
                     <strong>{{ comment.user.username }}</strong>
                     <p>{{ comment.content|linebreaksbr }}</p>
                     <!-- Кнопка "Ответить" -->
                     <a href="#" class="reply-link" data-comment-id="{{ comment.id }}">Ответить</a>
                     {% if request.user == comment.user %}
-                    <form method="post" action="{% url 'comment_delete' comment.id %}" style="display:inline;">
+                    <form method="post" action="{% url 'groups:delete_comment' group.slug post.slug comment.id %}" style="display:inline;">
                         {% csrf_token %}
                         <input type="hidden" name="_method" value="DELETE">
                         <button type="submit">Удалить</button>
                     </form>
-                    <a href="{% url "edit_comment" post.slug comment.id %}">Редактировать</a>
+                    <a href="{% url "groups:comment_update" group.slug post.slug comment.id %}">Редактировать</a>
                     {% endif %}
 
                     <!-- Форма для ответа на комментарий -->
-                    <form class="reply-form" id="reply-form-{{ comment.id }}" method="post" action="{% url 'add_comment' post.slug %}">
+                    <form class="reply-form" id="reply-form-{{ comment.id }}" method="post" action="{% url 'groups:add_comment' group.slug post.slug %}">
                         {% csrf_token %}
                         {{ form.as_p }}
                         <input type="hidden" name="parent_id" value="{{ comment.id }}">
@@ -107,3 +107,27 @@
 {% endblock content %}
 
 {% block sidebar %}{% endblock sidebar %}
+
+
+{% block js %}
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        var replyLinks = document.querySelectorAll('.reply-link');
+
+        replyLinks.forEach(function(link) {
+            link.addEventListener('click', function(event) {
+                event.preventDefault();
+                var commentId = this.getAttribute('data-comment-id');
+                // Скрыть все формы для ответов
+                var replyForms = document.querySelectorAll('.reply-form');
+                replyForms.forEach(function(form) {
+                    form.style.display = 'none';
+                });
+                // Показать форму для текущего комментария
+                var replyForm = document.getElementById('reply-form-' + commentId);
+                replyForm.style.display = 'block';
+            });
+        });
+    });
+</script>
+{% endblock js %}
