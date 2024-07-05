@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% load static %}
+
+
+{% block css %}
+<link rel="stylesheet" href="{% static "groups/css/group_create.css" %}">
+{% endblock css %}
+
+{% block content %}
+<form method="post" enctype="multipart/form-data">
+    <h1>Создать новую группу</h1>
+    {% csrf_token %}
+    <input type="hidden" name="next" value="{{ next }}"></input>
+    {% for f in form %}
+    <div class="form-group">
+        {{ f }}
+        <div class="form-error">{{ f.errors }}</div>
+    </div>
+    {% endfor %}            
+    <button type="submit" class="btn">Создать группу</button>
+</form>
+{% endblock content %}
+
+
+{% block sidebar %}{% endblock sidebar %}

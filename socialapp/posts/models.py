@@ -30,8 +30,8 @@ class PublishedManager(models.Manager):
     
 class Post(models.Model):
     class Status(models.IntegerChoices):
-        DRAFT = 0, "DRAFT"
-        PUBLISHED = 1, "PUBLISHED"
+        DRAFT = 0, "Черновик"
+        PUBLISHED = 1, "Опубликовать"
         
     title = models.CharField(max_length=125)
     slug = models.SlugField(max_length=255, unique=True, db_index=True)
@@ -52,7 +52,6 @@ class Post(models.Model):
     
     def __str__(self) -> str:
         return self.title
-    
     
     @property
     def image_url(self):

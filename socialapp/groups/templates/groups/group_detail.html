@@ -27,14 +27,23 @@
         <h2>Members</h2>
         <ul class="member-list">
             {% for member in members %}
-            <li class="member-item"><a href="{% url "users:user_profile" member.user.username %}">{{ member.user.username }}</li>
+            <li class="member-item"><a href="{% url "users:user_profile" member.user.username %}">{{ member.user.username }}</a></li>
             {% endfor %}
         </ul>
         {% else %}
         <h2>Здесь пока никого нету</h2>
         {% endif %}
     </div>
+    {% if has_posts %}
     <a href="{% url 'groups:group_posts' group.slug %}" class="group-posts-link">View Posts</a>
+    {% else %}
+    {% if request.user == group.owner %}
+    <a href="#">Добавить пост</a>
+    {% else %}
+    <p>На данный момент в этой группе постов нету</p>
+    {% endif %}
+    {% endif %}
+    
 </div>
 {% endblock content %}
 

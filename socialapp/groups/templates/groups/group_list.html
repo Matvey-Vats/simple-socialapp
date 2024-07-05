@@ -31,4 +31,11 @@
 {% endblock content %}
 
 
-{% comment %} {% block sidebar %}{% endblock sidebar %} {% endcomment %}
+{% block sidebar %}
+<aside class="sidebar">
+    <ul class="opciones">
+        <li><a href="{% url "groups:create_group" %}">Создать новую группу</a></li>
+        <li><a href="{% url "groups:add_post" %}">Создать пост</a></li>
+    </ul>
+</aside>
+{% endblock sidebar %}

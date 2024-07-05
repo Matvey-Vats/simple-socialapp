@@ -1,8 +1,32 @@
 from django.db import models
 from django.contrib.auth import get_user_model
 from posts.models import TagPost
+from django.utils.text import slugify
 from django.core.validators import MaxLengthValidator
 from django.urls import reverse
+
+
+
+
+TRANSLIT_DICT = {
+    'а': 'a', 'б': 'b', 'в': 'v', 'г': 'g', 'д': 'd', 'е': 'e', 'ё': 'yo', 'ж': 'zh',
+    'з': 'z', 'и': 'i', 'й': 'j', 'к': 'k', 'л': 'l', 'м': 'm', 'н': 'n', 'о': 'o',
+    'п': 'p', 'р': 'r', 'с': 's', 'т': 't', 'у': 'u', 'ф': 'f', 'х': 'kh', 'ц': 'ts',
+    'ч': 'ch', 'ш': 'sh', 'щ': 'sch', 'ъ': '', 'ы': 'y', 'ь': '', 'э': 'e', 'ю': 'yu',
+    'я': 'ya', 'А': 'A', 'Б': 'B', 'В': 'V', 'Г': 'G', 'Д': 'D', 'Е': 'E', 'Ё': 'Yo',
+    'Ж': 'Zh', 'З': 'Z', 'И': 'I', 'Й': 'J', 'К': 'K', 'Л': 'L', 'М': 'M', 'Н': 'N',
+    'О': 'O', 'П': 'P', 'Р': 'R', 'С': 'S', 'Т': 'T', 'У': 'U', 'Ф': 'F', 'Х': 'Kh',
+    'Ц': 'Ts', 'Ч': 'Ch', 'Ш': 'Sh', 'Щ': 'Sch', 'Ъ': '', 'Ы': 'Y', 'Ь': '', 'Э': 'E',
+    'Ю': 'Yu', 'Я': 'Ya'
+}
+# Create your models here.
+def slugify_cyrillic(text):
+    transliterated_text = ''.join(TRANSLIT_DICT.get(c, c) for c in text)
+    return slugify(transliterated_text)
+
+
+
+
 
 class Group(models.Model):
     class Status(models.TextChoices):
@@ -24,12 +48,21 @@ class Group(models.Model):
     
     
     def get_absolute_url(self):
-        return reverse("group_detail", kwargs={"group_slug": self.slug})
+        return reverse("groups:group_detail", kwargs={"group_slug": self.slug})
     
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = slugify_cyrillic(self.name)
+            original_slug = self.slug
+            counter = 1
+            while Group.objects.filter(slug=self.slug).exists():
+                self.slug = f"{original_slug}-{counter}"
+                counter += 1
+        super(Group, self).save(*args, **kwargs)
     
     
 class GroupMembership(models.Model):
-    group = models.ForeignKey(Group, related_name="memberhips", on_delete=models.CASCADE)
+    group = models.ForeignKey(Group, related_name="memberships", on_delete=models.CASCADE)
     user = models.ForeignKey(get_user_model(), related_name="memberships", on_delete=models.CASCADE)
     is_admin = models.BooleanField(default=False)
     joined_at = models.DateTimeField(auto_now_add=True)
@@ -60,6 +93,22 @@ class GroupPost(models.Model):
                                                     "post_slug": self.slug,})
     def total_likes(self):
         return self.likes.count()
+    
+    @property
+    def image_url(self):
+        if self.photo and hasattr(self.photo, 'url'):
+            return self.photo.url
+    
+    
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = slugify_cyrillic(self.title)
+            original_slug = self.slug
+            counter = 1
+            while GroupPost.objects.filter(slug=self.slug).exists():
+                self.slug = f"{original_slug}-{counter}"
+                counter += 1
+        super(GroupPost, self).save(*args, **kwargs)
     
     
 class GroupComment(models.Model):
