@@ -19,7 +19,7 @@ TRANSLIT_DICT = {
     'Ц': 'Ts', 'Ч': 'Ch', 'Ш': 'Sh', 'Щ': 'Sch', 'Ъ': '', 'Ы': 'Y', 'Ь': '', 'Э': 'E',
     'Ю': 'Yu', 'Я': 'Ya'
 }
-# Create your models here.
+
 def slugify_cyrillic(text):
     transliterated_text = ''.join(TRANSLIT_DICT.get(c, c) for c in text)
     return slugify(transliterated_text)
@@ -59,6 +59,15 @@ class Group(models.Model):
                 self.slug = f"{original_slug}-{counter}"
                 counter += 1
         super(Group, self).save(*args, **kwargs)
+        
+    
+    class Meta:
+        verbose_name = "Группа"
+        verbose_name_plural = "Группы"
+        ordering = ['-created_at']     
+        indexes = [
+            models.Index(fields=["-created_at"])
+        ]   
     
     
 class GroupMembership(models.Model):
@@ -69,6 +78,14 @@ class GroupMembership(models.Model):
     
     def __str__(self) -> str:
         return f"{self.user.username} in {self.group.name}"
+    
+    class Meta:
+        ordering = ["-joined_at"]
+        indexes = [
+            models.Index(fields=["-joined_at"])
+        ]
+        verbose_name = "Учасник"
+        verbose_name_plural = "Учасники"
     
 
 class GroupPost(models.Model):
@@ -110,6 +127,13 @@ class GroupPost(models.Model):
                 counter += 1
         super(GroupPost, self).save(*args, **kwargs)
     
+    class Meta:
+        ordering = ["-created_at"]
+        indexes = [
+            models.Index(fields=['-created_at'])
+        ]
+        verbose_name = "Пост"
+        verbose_name_plural = "Посты"
     
 class GroupComment(models.Model):
     user = models.ForeignKey(to=get_user_model(), on_delete=models.CASCADE, related_name="group_comments")

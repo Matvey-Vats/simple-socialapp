@@ -6,7 +6,9 @@
 {% endblock css %}
 
 {% block content %}
+<a class="back-btn" href="{% url "groups:group_posts" group.slug %}">Вернуться назад</a>
 <div class="post-container">
+    
     <div class="post-header">
         {% if post.author.photo %}
         <img src="{{ post.author.photo.url }}" alt="Фото {{ post.author.username }}">
@@ -24,9 +26,9 @@
         <form action="{% url 'groups:like_post' group.slug post.slug %}" method="POST">
         {% csrf_token %}
         {% if liked %}
-            <button type="submit" name="post_id" value="{{ post.id }}">Unlike</button>
+            <button class="dislike-btn" type="submit" name="post_id" value="{{ post.id }}">Убрать лайк</button>
         {% else %}
-            <button type="submit" name="post_id" value="{{ post.id }}">Like</button>
+            <button class="like-btn" type="submit" name="post_id" value="{{ post.id }}">Поставить</button>
         {% endif %}
         </form>
         {% else %}
@@ -48,8 +50,11 @@
         {% endfor %}
     </div>
 
-    {% if request.user == post.author %}
-    <a href="{% url "update_post" post.slug %}">Редактировать</a>
+    {% if request.user == post.author or request.user == group.owner %}
+    <div class="btns">
+        <a href="{% url "groups:update_post" group.slug post.slug %}" class="edit-btn">Редактировать</a>
+        <a href="{% url "groups:delete_post" group.slug post.slug %}" class="delete-btn">Удалить</a>
+    </div>
     {% endif %}
     
     <hr>

@@ -17,6 +17,11 @@
             <h1 class="group-title">{{ group.name }}</h1>
             <p class="group-info"><strong>Админ:</strong> {{ group.owner.username }}</p>
             <p class="group-info"><strong>Дата:</strong> {{ group.created_at|date:"Y-m-d" }}</p>
+            {% if request.user == group.owner or user_is_member %}
+            <a href="{% url "groups:add_post_in_group" group.slug %}" class="create-btn">Добавить пост</a>
+            {% else %}
+            <a href="{% url "groups:follow" group.slug %}" class="create-btn">Присоединится к группе</a>
+            {% endif %}
         </div>
     </div>
     <div class="group-description">
@@ -38,7 +43,7 @@
     <a href="{% url 'groups:group_posts' group.slug %}" class="group-posts-link">View Posts</a>
     {% else %}
     {% if request.user == group.owner %}
-    <a href="#">Добавить пост</a>
+    <a href="{% url "groups:add_post_in_group" group.slug %}">Добавить пост</a>
     {% else %}
     <p>На данный момент в этой группе постов нету</p>
     {% endif %}

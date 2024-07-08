@@ -1,5 +1,6 @@
 from django import forms
-from .models import GroupComment, Group, GroupPost
+from .models import GroupComment, Group, GroupPost, GroupMembership
+from django.db.models import Q
 
 class CommentCreateForm(forms.ModelForm):
     
@@ -33,8 +34,25 @@ class GroupPostWithGroupForm(forms.ModelForm):
     class Meta:
         model = GroupPost
         fields = ['group', 'title', 'content', 'photo', 'tags']
+        widgets = {
+            'title': forms.TextInput(attrs={"placeholder": "Заголовок"}),
+            'content': forms.Textarea(attrs={"placeholder": "Контент"}),
+        }
+    
+    def __init__(self, *args, **kwargs):
+        user = kwargs.pop('user', None)
+        super().__init__(*args, **kwargs)
+        if user:
+            self.fields['group'].queryset = Group.objects.filter(
+                Q(memberships__user=user) | Q(owner=user)
+            ).distinct()
+            self.fields['group'].empty_label="Выберите группу"
         
 class GroupPostForm(forms.ModelForm):
     class Meta:
         model = GroupPost
         fields = ['title', 'content', 'photo', 'tags']
+        widgets = {
+            'title': forms.TextInput(attrs={"placeholder": "Заголовок"}),
+            'content': forms.Textarea(attrs={"placeholder": "Контент"})
+        }

@@ -2,6 +2,10 @@
 {% load static %}
 
 
+{% block css %}
+<link rel="stylesheet" href="{% static "groups/css/group_create.css" %}">
+{% endblock css %}
+
 {% block content %}
 <form method="post" enctype="multipart/form-data">
     <h1>Создать новый пост</h1>
@@ -18,3 +22,5 @@
 {% endblock content %}
 
 
+
+{% block sidebar %}{% endblock sidebar %}

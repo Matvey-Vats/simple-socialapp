@@ -3,7 +3,7 @@ from django.db.models.base import Model as Model
 from django.db.models.query import QuerySet
 from django.shortcuts import render, get_object_or_404
 from .models import Group, GroupMembership, GroupPost, GroupComment
-from django.views.generic import ListView, DetailView, UpdateView, CreateView, View
+from django.views.generic import ListView, DetailView, UpdateView, CreateView, DeleteView, View
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import redirect, HttpResponseRedirect
@@ -35,6 +35,7 @@ class GroupDetailView(LoginRequiredMixin, DataMixin, DetailView):
         group = self.get_object()
         context['members'] = GroupMembership.objects.filter(group=group)
         context['has_posts'] = GroupPost.objects.filter(group=group).exists()
+        context["user_is_member"] = group.memberships.filter(user=self.request.user).exists()
         return self.get_mixin_context(context, title="Группа - " + group.name)
     
     def get_object(self, queryset: QuerySet[Any] | None = ...) -> Model:
@@ -54,6 +55,7 @@ class GroupPostsListView(LoginRequiredMixin, DataMixin, ListView):
     def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
         context = super().get_context_data(**kwargs)
         context["group"] = Group.objects.get(slug=self.kwargs["group_slug"])
+        context["user_is_member"] = context["group"].memberships.filter(user=self.request.user).exists()
         return self.get_mixin_context(context, title="Посты группы " + context['group'].name)
     
     
@@ -77,8 +79,37 @@ class GroupPostDetailView(LoginRequiredMixin, DataMixin, DetailView):
         return self.get_mixin_context(context, title='Пост ' + context["post"].title, form=CommentCreateForm())
     
 class GroupPostUpdateView(LoginRequiredMixin, DataMixin, UpdateView):
-    pass
+    model = GroupPost
+    form_class = GroupPostForm
+    template_name = "groups/group_post_create.html"
+    slug_url_kwarg = "post_slug"
+    
+    def get_success_url(self) -> str:
+        group_slug = self.kwargs['group_slug']
+        return reverse_lazy("groups:group_posts", kwargs={'group_slug': group_slug})
 
+# class GroupPostDeleteView(LoginRequiredMixin, DeleteView):
+#     model = GroupPost
+#     template_name = "groups/post_detail.html"
+#     success_url = reverse_lazy("home")
+#     slug_url_kwarg = "post_slug"
+    
+#     def get_object(self, queryset: QuerySet[Any] | None = ...) -> Model:
+#         return get_object_or_404(GroupPost, slug=self.slug_url_kwarg, group__slug=self.kwargs['group_slug'])
+    
+    
+#     def get_context_data(self, **kwargs):
+#         context = super().get_context_data(**kwargs)
+#         context['group_slug'] = self.kwargs.get('group_slug')
+#         return context
+
+    
+@login_required
+def delete_post(request, group_slug, post_slug):
+    group = get_object_or_404(Group, slug=group_slug, privacy=Group.Status.OPEN)
+    post = get_object_or_404(GroupPost, slug=post_slug, group=group)
+    post.delete()
+    return redirect("groups:group_posts", group_slug)    
 
 class GroupCreateView(LoginRequiredMixin, DataMixin, CreateView):
     form_class = GroupCreateForm
@@ -103,24 +134,27 @@ class GroupPostCreateView(LoginRequiredMixin, DataMixin, CreateView):
         return super().form_valid(form)
     
     def get_success_url(self) -> str:
-        return self.object.get_absolute_url()
+        group_slug = self.kwargs["group_slug"]
+        post_slug = self.object.slug
+        return reverse_lazy("groups:post_detail", kwargs={'group_slug': group_slug, 'post_slug': post_slug})
     
 
 @login_required
 def add_post(request):
     if request.method == "POST":
-        form = GroupPostWithGroupForm(request.POST)
+        form = GroupPostWithGroupForm(request.POST, request.FILES, user=request.user)
         if form.is_valid():
             post = form.save(commit=False)
             post.author = request.user
+            post.owner = request.user  # Назначаем владельцем поста текущего пользователя
             post.save()
             form.save_m2m()
-            return redirect("groups:group_posts", post.group.slug)
+            return redirect("groups:group_posts", group_slug=post.group.slug)
+        else:
+            print(form.errors)  # Отладочное сообщение
     else:
-        form = GroupPostWithGroupForm()
-        form.fields['group'].queryset = Group.objects.filter(memberships__user=request.user)
-    return render(request, 'groups/group_post_create.html', {"form": form,})
-
+        form = GroupPostWithGroupForm(user=request.user)
+    return render(request, 'groups/group_post_create.html', {"form": form})
 
 class CommentManagerView(LoginRequiredMixin, View):
 
@@ -181,3 +215,12 @@ def like_post(request, group_slug, post_slug):
         else:
             post.likes.add(request.user)
     return HttpResponseRedirect(reverse_lazy("groups:post_detail", kwargs={"group_slug": group_slug, "post_slug": post_slug,}))
+
+
+@login_required
+def follow_to_group(request, group_slug):
+    group = get_object_or_404(Group, slug=group_slug, privacy=Group.Status.OPEN)
+    user = request.user
+    new_member = GroupMembership.objects.create(group=group, user=user)
+    return HttpResponseRedirect(request.META["HTTP_REFERER"])
+    
