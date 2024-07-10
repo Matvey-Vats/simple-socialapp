@@ -45,7 +45,8 @@ class PostDetailView(DataMixin, DetailView):
         return self.get_mixin_context(context, title=context["post"].title, form=CommentCreateForm())
     
     def get_object(self, queryset=None):
-        return get_object_or_404(Post.published, slug=self.kwargs[self.slug_url_kwarg])
+        queryset = Post.published.select_related("author", "category").prefetch_related("tags", "likes")
+        return get_object_or_404(queryset, slug=self.kwargs[self.slug_url_kwarg])
     
 class AddCommentView(LoginRequiredMixin, View):
     
@@ -189,7 +190,7 @@ def search_posts(request):
         posts = Post.published.filter(title__icontains=query)
     
     context = {
-        "posts": posts,
+        "most_likes_posts": posts,
     }
     return render(request, "posts/recomendation.html", context)
 

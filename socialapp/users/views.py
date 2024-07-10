@@ -92,12 +92,13 @@ class UserProfileView(LoginRequiredMixin, DataMixin, DetailView, View):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["is_subscribed"] = self.request.user.subscriptions.filter(id=self.object.id).exists()
-        
-        context["current_user"] = User.objects.get(username=self.kwargs["username"])
+        profile_user = self.get_object
+        context["current_user"] = profile_user
         return self.get_mixin_context(context, title=context["profile_user"].username)
 
     def get_object(self, queryset=None):
-        return get_object_or_404(User, username=self.kwargs["username"]) 
+        queryset = User.objects.prefetch_related('subscriptions')
+        return get_object_or_404(queryset, username=self.kwargs["username"]) 
     
     def post(self, request, *args, **kwargs):
         user_to_subscribe = self.get_object()
@@ -111,6 +112,7 @@ class UserProfileView(LoginRequiredMixin, DataMixin, DetailView, View):
 class UserSubscriptionsView(LoginRequiredMixin, ListView):
     template_name = 'registration/user_subscriptions.html'
     context_object_name = 'subscriptions'
+    paginate_by = 20
 
     def get_queryset(self):
         user = get_object_or_404(User, username=self.kwargs['username'])
@@ -119,6 +121,7 @@ class UserSubscriptionsView(LoginRequiredMixin, ListView):
 class UserSubscribersView(LoginRequiredMixin, ListView):
     template_name = 'registration/user_subscribers.html'
     context_object_name = 'subscribers'
+    paginate_by = 20
 
     def get_queryset(self):
         user = get_object_or_404(User, username=self.kwargs['username'])

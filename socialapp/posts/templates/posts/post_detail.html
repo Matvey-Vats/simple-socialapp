@@ -26,9 +26,9 @@
         <form action="{% url 'like_post' post.slug %}" method="POST">
         {% csrf_token %}
         {% if liked %}
-            <button type="submit" name="post_id" value="{{ post.id }}">Unlike</button>
+            <button class="dislike-btn" type="submit" name="post_id" value="{{ post.id }}">Убрать лайк</button>
         {% else %}
-            <button type="submit" name="post_id" value="{{ post.id }}">Like</button>
+            <button class="like-btn" type="submit" name="post_id" value="{{ post.id }}">Поставить лайк</button>
         {% endif %}
         </form>
         {% else %}
@@ -51,7 +51,10 @@
     </div>
 
     {% if request.user == post.author %}
-    <a href="{% url "update_post" post.slug %}">Редактировать</a>
+    <div class="btns">
+    <a href="{% url "update_post" post.slug %}" class="edit-btn">Редактировать</a>
+    <a href="{% url "update_post" post.slug %}" class="delete-btn">Удалить</a>
+    </div>
     {% endif %}
     
     <hr>

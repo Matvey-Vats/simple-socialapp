@@ -40,7 +40,7 @@ class Post(models.Model):
     time_create = models.DateTimeField(auto_now_add=True)
     time_update = models.DateTimeField(auto_now=True)
     is_published = models.BooleanField(choices=tuple(map(lambda x: (bool(x[0]), x[1]), Status.choices)), default=Status.PUBLISHED)
-    category = models.ForeignKey(to="Category", on_delete=models.PROTECT, related_name="posts")
+    category = models.ForeignKey(to="Category", on_delete=models.PROTECT, related_name="posts", null=True, blank=True)
     tags = models.ManyToManyField("TagPost", blank=True, related_name="tags")
     likes = models.ManyToManyField(get_user_model(), related_name="likes_posts", blank=True)
     

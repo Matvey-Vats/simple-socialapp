@@ -7,6 +7,7 @@ from django.views.generic import ListView, DetailView, UpdateView, CreateView, D
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import redirect, HttpResponseRedirect
+from django.db.models import Q
 from django.urls import reverse_lazy
 
 from posts.utils import DataMixin
@@ -50,7 +51,7 @@ class GroupPostsListView(LoginRequiredMixin, DataMixin, ListView):
     
     def get_queryset(self) -> QuerySet[Any]:
         self.group = get_object_or_404(Group, slug=self.kwargs["group_slug"])
-        return GroupPost.objects.filter(group=self.group)
+        return GroupPost.objects.filter(group=self.group).select_related("author")
     
     def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
         context = super().get_context_data(**kwargs)
@@ -224,3 +225,13 @@ def follow_to_group(request, group_slug):
     new_member = GroupMembership.objects.create(group=group, user=user)
     return HttpResponseRedirect(request.META["HTTP_REFERER"])
     
+def search_post(request):
+    query = request.GET.get('query')
+    
+    if query:
+        searched_group = Group.objects.filter(
+            Q(privacy=Group.Status.OPEN) | Q(privacy=Group.Status.CLOSED),
+            name__icontains=query
+        )
+    
+    return render(request, "groups/group_list.html", {"groups": searched_group})

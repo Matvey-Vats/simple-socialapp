@@ -8,6 +8,17 @@
 
 {% block content %}
 <div class="container">
+    <div class="search-block">
+        <form method="get" class="search-form" action="{% url "groups:search_group" %}">
+            <input type="text" name="query" placeholder="Поиск" class="input-group">
+            <button class="search-btn" type="submit">Поиск</button>
+        </form>
+    </div>
+    <ul class="opciones">
+        <li><a href="{% url "groups:create_group" %}">Создать новую группу</a></li>
+        <li><a href="{% url "groups:add_post" %}">Создать пост</a></li>
+    </ul>
+
     {% if groups %}
     <h1>Доступные группы</h1>
     <div class="groups-list">
@@ -16,10 +27,10 @@
             <img src="{{ group.cover_image.url }}" alt="{{ group.name }}" class="group-image">
             <div class="group-content">
                 <h2 class="group-title">{{ group.name }}</h2>
-                <p class="group-info"><strong>Admin:</strong> {{ group.owner.username }}</p>
-                <p class="group-info"><strong>Date:</strong> {{ group.created_at|date:"Y-m-d" }}</p>
+                <p class="group-info"><strong>Админ:</strong> {{ group.owner.username }}</p>
+                <p class="group-info"><strong>Дата:</strong> {{ group.created_at|date:"Y-m-d" }}</p>
                 <p class="group-description">{{ group.description|truncatewords:20 }}</p>
-                <a href="{% url "groups:group_detail" group.slug %}" class="group-view-button">View</a>
+                <a href="{% url "groups:group_detail" group.slug %}" class="group-view-button">Посмотреть</a>
             </div>
         </div>
         {% endfor %}
@@ -27,15 +38,16 @@
     {% else %}
     <h1>Здесь пока ничего нету</h1>
     {% endif %}
+    {% include "groups/include/pagination.html" with groups=page_obj %}
 </div>
 {% endblock content %}
 
 
 {% block sidebar %}
-<aside class="sidebar">
+{% comment %} <aside class="sidebar">
     <ul class="opciones">
         <li><a href="{% url "groups:create_group" %}">Создать новую группу</a></li>
         <li><a href="{% url "groups:add_post" %}">Создать пост</a></li>
     </ul>
-</aside>
+</aside> {% endcomment %}
 {% endblock sidebar %}

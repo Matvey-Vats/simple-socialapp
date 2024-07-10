@@ -1,5 +1,10 @@
 {% extends "base.html" %}
+{% load static %}
 
+
+{% block css %}
+<link rel="stylesheet" href="{% static "posts/css/edit_comment.css" %}">
+{% endblock css %}
 
 {% block content %}
 
@@ -7,8 +12,9 @@
     <h1>Редактировать комментарий</h1>
     {% csrf_token %}
     {{ form.as_p }}
-    <button type="submit">Сохранить</button>
+    <button type="submit" class="btn">Сохранить</button>
 </form>
+
 {% endblock content %}
 
 

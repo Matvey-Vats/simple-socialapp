@@ -10,6 +10,7 @@ urlpatterns = [
     path('group/<slug:group_slug>/posts/', views.GroupPostsListView.as_view(), name="group_posts"),
     path('group/<slug:group_slug>/post/<slug:post_slug>/', views.GroupPostDetailView.as_view(), name="post_detail"),
     path('group/<slug:group_slug>/post/<slug:post_slug>/edit/', views.GroupPostUpdateView.as_view(), name="update_post"),
+    path("search_group/", views.search_post, name="search_group"),
     
     
     
