@@ -14,7 +14,7 @@ from django.contrib.auth import get_user_model
 from django.db.models import Count
 
 from .utils import DataMixin
-from .models import Post, TagPost, Comment
+from .models import Post, TagPost, Comment, Notification
 from .forms import AddPageForm, CommentCreateForm
 
 # Create your views here.
@@ -204,6 +204,21 @@ def like_post(request, post_slug):
             post.likes.add(request.user)
     return HttpResponseRedirect(reverse_lazy("post_detail", args=[post_slug]))
 
+class NotificationListView(LoginRequiredMixin, ListView):
+    model = Notification
+    template_name = "notifications/notification_list.html"
+    context_object_name = "notifications"
+    
+    def get_queryset(self) -> QuerySet[Any]:
+        return Notification.objects.filter(user=self.request.user, is_read=False)
+
+
+@login_required
+def mark_notification_as_read(request, notification_id):
+    notification = get_object_or_404(Notification, id=notification_id, user=request.user)
+    notification.is_read = True
+    notification.save()
+    return redirect("notifications_list")
 
 def about(request):
     return HttpResponse("About")

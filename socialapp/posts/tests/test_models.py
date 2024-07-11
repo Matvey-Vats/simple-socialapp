@@ -1,6 +1,6 @@
 from django.test import TestCase
 from django.contrib.auth import get_user_model
-from posts.models import Post, Comment
+from posts.models import Post, Comment, TagPost
 
 class PostModelTest(TestCase):
     def setUp(self) -> None:
@@ -18,6 +18,24 @@ class PostModelTest(TestCase):
         self.assertEqual(self.post.content, "This is a test post")
         self.assertEqual(self.post.author, self.user)
         
+    def test_get_absolute_url(self):
+        self.assertEqual(self.post.get_absolute_url(), '/post/test-post/')
+    
+    def test_total_likes(self):
+        self.post.likes.add(self.user)
+        self.assertEqual(self.post.total_likes(), 1)
+  
+class TagModelTest(TestCase):
+    def setUp(self) -> None:
+        self.tag = TagPost.objects.create(tag="TestTag", slug="test-tag")
+        
+    def test_tag_creation(self):
+        self.assertEqual(self.tag.tag, "TestTag")
+        self.assertEqual(self.tag.slug, "test-tag")
+        
+    def test_get_absolute_url(self):
+        self.assertEqual(self.tag.get_absolute_url(), '/tag/test-tag/')
+            
         
 class CommentModelTest(TestCase):
     def setUp(self) -> None:

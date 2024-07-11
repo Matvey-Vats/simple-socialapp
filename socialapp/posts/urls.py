@@ -19,6 +19,9 @@ urlpatterns = [
     path("recomendation/", views.RecomendationListView.as_view(), name="recomendations"),
     path("search_post/", views.search_posts, name="search_post"),
     path("post/<slug:post_slug>/like/", views.like_post, name="like_post"),
+    
+    path('notifications/', views.NotificationListView.as_view(), name="notifications_list"),
+    path('read/<int:notification_id>/', views.mark_notification_as_read, name="mark_notification_as_read"),
     path("about/", views.about, name='about'),
     path("contact/", views.contact, name="contact"),
 ]

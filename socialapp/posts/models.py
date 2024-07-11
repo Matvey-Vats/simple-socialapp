@@ -137,3 +137,13 @@ class Comment(models.Model):
     def is_reply(self):
         return self.parent is not None
         
+
+class Notification(models.Model):
+    user = models.ForeignKey(get_user_model(), on_delete=models.CASCADE, related_name="notifications")
+    text = models.TextField(max_length=255)
+    created_at = models.DateTimeField(auto_now_add=True)
+    is_read = models.BooleanField(default=False)
+    
+    def __str__(self) -> str:
+        return f"Notifications for {self.user.username}: {self.text}"
+    

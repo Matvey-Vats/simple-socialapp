@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% load static %}
+
+
+{% block css %}
+<link rel="stylesheet" href="{% static "posts/css/notification_list.css" %}">
+{% endblock css %}
+
+{% block content %}
+  <div class="notifications-container">
+    <h2 class="notifications-title">Ваши уведомления</h2>
+    <ul class="notifications-list">
+      {% for notification in notifications %}
+        <li class="notification-item">
+          <p class="notification-text">{{ notification.text }}</p>
+          <a href="{% url 'mark_notification_as_read' notification.id %}" class="mark-as-read-button">Отметить как прочитанное</a>
+        </li>
+      {% empty %}
+        <p class="no-notifications">Нет новых уведомлений.</p>
+      {% endfor %}
+    </ul>
+  </div>
+{% endblock %}
+
+
+{% block sidebar %}{% endblock sidebar %}
