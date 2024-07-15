@@ -78,6 +78,7 @@ TEMPLATES = [
                 'django.contrib.messages.context_processors.messages',
                 'posts.context_processors.get_post_context',
                 'posts.context_processors.get_default_user_img',
+                'posts.context_processors.unread_notifications_count',
             ],
         },
     },

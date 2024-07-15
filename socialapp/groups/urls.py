@@ -12,6 +12,8 @@ urlpatterns = [
     path('group/<slug:group_slug>/post/<slug:post_slug>/edit/', views.GroupPostUpdateView.as_view(), name="update_post"),
     path("search_group/", views.search_post, name="search_group"),
     
+    path('user_list/<slug:group_slug>/', views.UsersListView.as_view(), name="user_list"),
+    
     
     
     path('create_group/', views.GroupCreateView.as_view(), name="create_group"),
@@ -26,4 +28,5 @@ urlpatterns = [
     path("group/<slug:group_slug>/post/<slug:post_slug>/like/", views.like_post, name="like_post"),
     
     path('group/<slug:group_slug>/follow/', views.follow_to_group, name="follow"),
+    path('group/<slug:group_slug>/add_user/<str:username>/', views.add_user_to_group, name="add_user"),
 ]

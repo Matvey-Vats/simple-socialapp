@@ -204,10 +204,11 @@ def like_post(request, post_slug):
             post.likes.add(request.user)
     return HttpResponseRedirect(reverse_lazy("post_detail", args=[post_slug]))
 
-class NotificationListView(LoginRequiredMixin, ListView):
+class NotificationListView(LoginRequiredMixin, DataMixin, ListView):
     model = Notification
     template_name = "notifications/notification_list.html"
     context_object_name = "notifications"
+    title_page = "Уведомления"
     
     def get_queryset(self) -> QuerySet[Any]:
         return Notification.objects.filter(user=self.request.user, is_read=False)

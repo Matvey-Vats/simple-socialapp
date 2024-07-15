@@ -23,4 +23,12 @@ def create_like_notification(sender, instance, action, pk_set, **kwargs):
                 text=f"Пользователь {user.username} поставил лайк вашему посту {instance.title}"
             )
             
-            
+@receiver(m2m_changed, sender=get_user_model().subscribers.through)
+def create_follower_notification(sender, instance, action, reverse, pk_set, **kwargs):
+    if action == "post_add" and not reverse:
+        followers = get_user_model().objects.filter(pk__in=pk_set)
+        for follower in followers:
+            Notification.objects.create(
+            user=instance,
+            text=f"{follower.username} has followed you.",
+        )

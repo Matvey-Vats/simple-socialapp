@@ -4,6 +4,7 @@ from django.db.models.query import QuerySet
 from django.shortcuts import render, get_object_or_404
 from .models import Group, GroupMembership, GroupPost, GroupComment
 from django.views.generic import ListView, DetailView, UpdateView, CreateView, DeleteView, View
+from django.contrib.auth import get_user_model
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import redirect, HttpResponseRedirect
@@ -204,8 +205,34 @@ class CommentUpdateView(LoginRequiredMixin, UpdateView):
         group_slug = self.object.post.group.slug
         return reverse_lazy("groups:post_detail", kwargs={"post_slug": post_slug,
                                                    "group_slug": group_slug})
+
+class UsersListView(LoginRequiredMixin, DataMixin, ListView):
+    model = get_user_model()
+    template_name = "groups/user_list.html"
+    context_object_name = "users"
+    title_page = "Выберете пользователя"
     
+    def get_queryset(self) -> QuerySet[Any]:
+        current_user = self.request.user
+        subscriptions = current_user.subscriptions.all()
+        others = get_user_model().objects.exclude(id__in=subscriptions).exclude(id=current_user.id)
+        
+        queryset = list(subscriptions) + list(others)
+        return queryset
     
+    def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
+        context = super().get_context_data(**kwargs)
+        current_user = self.request.user
+        users = get_user_model().objects.all()
+        context['group'] = get_object_or_404(Group, slug=self.kwargs["group_slug"])
+        context['subscriptions'] = current_user.subscriptions.all()
+        context['user_in_group'] = context["group"].memberships.filter(user=current_user).exists()
+        context['user_membership_info'] = [
+        (user, GroupMembership.objects.filter(group=context['group'], user=user).exists())
+        for user in users
+    ]
+        return context
+        
 @login_required
 def like_post(request, group_slug, post_slug):
     group = get_object_or_404(Group, slug=group_slug)
@@ -222,6 +249,13 @@ def like_post(request, group_slug, post_slug):
 def follow_to_group(request, group_slug):
     group = get_object_or_404(Group, slug=group_slug, privacy=Group.Status.OPEN)
     user = request.user
+    new_member = GroupMembership.objects.create(group=group, user=user)
+    return HttpResponseRedirect(request.META["HTTP_REFERER"])
+
+@login_required
+def add_user_to_group(request, group_slug, username):
+    group = get_object_or_404(Group, slug=group_slug)
+    user = get_object_or_404(get_user_model(), username=username)
     new_member = GroupMembership.objects.create(group=group, user=user)
     return HttpResponseRedirect(request.META["HTTP_REFERER"])
     

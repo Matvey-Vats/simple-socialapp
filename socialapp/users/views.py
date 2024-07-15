@@ -1,4 +1,5 @@
 from django.db.models.base import Model as Model
+from django.http import HttpResponseRedirect
 from django.db.models.query import QuerySet
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import get_user_model
@@ -132,10 +133,10 @@ class UserSubscribersView(LoginRequiredMixin, ListView):
 def subscribe(request, username):
     user = get_object_or_404(User, username=username)
     request.user.subscriptions.add(user)
-    return redirect('users:user_profile', username=username)
+    return HttpResponseRedirect(request.META['HTTP_REFERER'])
 
 @login_required
 def unsubscribe(request, username):
     user = get_object_or_404(User, username=username)
     request.user.subscriptions.remove(user)
-    return redirect('users:user_profile', username=username)
+    return HttpResponseRedirect(request.META['HTTP_REFERER'])

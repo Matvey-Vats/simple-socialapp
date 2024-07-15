@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% load static %}
+
+
+{% block css %}
+<link rel="stylesheet" href="{% static "groups/css/user_list.css" %}">
+{% endblock css %}
+
+
+{% block content %}
+
+
+<div class="container">
+    {% if request.user == group.owner %}
+    <ul class="users-list">
+        {% for user, is_member in user_membership_info %}
+            <li class="user-item">
+                <div class="user-info">
+                    {% if user.photo %}
+                        <img src="{{ user.photo.url }}" alt="{{ user.username }}" class="user-photo">
+                    {% else %}
+                        <img src="{{ default_img }}" alt="{{ user.username }}" class="user-photo">
+                    {% endif %}
+                    <a href="{% url 'users:user_profile' user.username %}">{{ user.username }}</a>
+                </div>
+                <div class="user-actions">
+                    {% if user in subscriptions %}
+                        <a href="{% url 'users:unsubscribe' user.username %}" class="subs-btn">Отписаться</a>                
+                    {% else %}
+                        <a id="unsubscribe" href="{% url 'users:subscribe' user.username %}" class="subs-btn">Подписаться</a>
+                    {% endif %}
+
+                    {% if request.user == group.owner %}
+                        {% if is_member %}
+                            {% comment %} <p class="subs-btn">Пользователь уже в группе</p> {% endcomment %}
+                        {% else %}
+                            <a id="subscribe" href="{% url 'groups:add_user' group.slug user.username %}" class="subs-btn">Добавить</a>
+                        {% endif %}
+                    {% endif %}
+                </div>
+            </li>
+        {% endfor %}
+    </ul>
+    {% else %}
+        Сначала присоеденись в группу, чтобы была возможность добавлять и удалять пользователей
+        <a href="{% url 'groups:follow' group.slug %}">Присоединится к группе</a>
+    {% endif %}
+</div>
+
+
+{% endblock content %}
+
+
+{% block sidebar %}{% endblock sidebar %}

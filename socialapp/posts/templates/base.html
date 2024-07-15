@@ -19,7 +19,12 @@
             <a href="{% url "groups:group_list" %}">Группы</a>
             {% if user.is_authenticated %}
                 <a href="{% url "users:user_profile" user.username %}">{{ user.username }}</a> | <a href="{% url "users:logout" %}">Выйти</a>
-                <a href="{% url "notifications_list" %}">Сообщения</a>
+                <a href="{% url 'notifications_list' %}">
+                    Уведомления
+                    {% if unread_notifications_count > 0 %}
+                        <span class="notification-count">{{ unread_notifications_count }}</span>
+                    {% endif %}
+                </a>
             {% else %}
                 <a href="{% url "users:login" %}">Авторизация</a> | <a href="{% url "users:registration" %}">Регистрация</a>
             {% endif %}

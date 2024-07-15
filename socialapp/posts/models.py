@@ -147,3 +147,7 @@ class Notification(models.Model):
     def __str__(self) -> str:
         return f"Notifications for {self.user.username}: {self.text}"
     
+    class Meta:
+        ordering = ['-created_at']
+        verbose_name = "Уведомление"
+        verbose_name_plural = "Уведомления"
