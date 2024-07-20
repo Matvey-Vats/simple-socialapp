@@ -11,6 +11,8 @@ urlpatterns = [
     path('users/', include("users.urls", namespace="users")),
     path("groups/", include("groups.urls", namespace="groups")),
     path("__debug__/", include("debug_toolbar.urls")),
+    
+    path('api/', include('posts.api.urls')),
 ]
 
 

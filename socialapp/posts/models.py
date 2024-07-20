@@ -61,6 +61,9 @@ class Post(models.Model):
     def total_likes(self):
         return self.likes.count()
     
+    def total_comments(self):
+        return self.comments.count()
+    
     class Meta:
         ordering = ["-time_create"]
         indexes = [
@@ -100,7 +103,7 @@ class Category(models.Model):
     
     
 class TagPost(models.Model):
-    tag = models.CharField(max_length=100, db_index=True)
+    tag = models.CharField(max_length=100, db_index=True, unique=True)
     slug = models.SlugField(max_length=255, db_index=True, unique=True)
     
     class Meta:
